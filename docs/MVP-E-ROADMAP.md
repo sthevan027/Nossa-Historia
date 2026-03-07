@@ -1,26 +1,38 @@
 # MVP e Roadmap — Nossa História
 
+## Status atual (Mar 2026)
+
+| Fase        | Status   | Progresso     |
+|-------------|----------|---------------|
+| Fase 1 Base | Concluída| 5/5 itens     |
+| Fase 2 Core | Concluída| 5/5 itens     |
+| Pós-MVP     | Em andamento | 2/4 itens |
+
+**MVP v1.0 funcional** — Login, cadastro, conexão de parceiro, timeline, memórias, metas e dashboard implementados.
+
+---
+
 ## Escopo do MVP (v1.0) — Primeira Versão
 
 **MVP realista para construir rápido:**
 
-### Fase 1 — Base (Semanas 1–2)
-- [ ] Setup React Native + Expo
-- [ ] Integração Supabase (Auth, DB, Storage)
-- [ ] Tela de Login
-- [ ] Tela de Cadastro
-- [ ] Fluxo de conexão de parceiro (código/link)
+### Fase 1 — Base (Semanas 1–2) ✅ Concluída
+- [x] Setup React Native + Expo
+- [x] Integração Supabase (Auth, DB, Storage)
+- [x] Tela de Login
+- [x] Tela de Cadastro
+- [x] Fluxo de conexão de parceiro (código/link)
 
-### Fase 2 — Core (Semanas 3–4)
-- [ ] Tela inicial (dashboard) com métricas
-- [ ] Linha do tempo (CRUD completo)
-- [ ] Memórias com foto (CRUD + upload Supabase Storage)
-- [ ] Navegação (Bottom Tabs: Home, Timeline, Memórias, Planos, Perfil)
-- [ ] Tratamento de erros e loading states
+### Fase 2 — Core (Semanas 3–4) ✅ Concluída
+- [x] Tela inicial (dashboard) com métricas
+- [x] Linha do tempo (CRUD completo)
+- [x] Memórias com foto (CRUD + upload Supabase Storage)
+- [x] Navegação (Bottom Tabs: Home, Timeline, Memórias, Planos, Perfil)
+- [x] Tratamento de erros e loading states
 
 ### Depois do MVP
-- [ ] Planos/Metas
-- [ ] Datas importantes + contador de dias
+- [x] Planos/Metas
+- [x] Datas importantes + contador de dias (contador no dashboard)
 - [ ] Cartas digitais + Cápsula do tempo
 - [ ] Tema claro/escuro (opcional)
 
