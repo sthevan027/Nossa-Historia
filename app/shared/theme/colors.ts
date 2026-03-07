@@ -1,20 +1,24 @@
-// Paleta minimalista - Design doc
+// Paleta oficial - Branding "Nossa História"
+// Conceito: emocional, minimalista, moderno
 export const colors = {
-  // Opção 1 - Minimalista
-  background: '#0D0D0D',
+  background: '#0F0F0F',
   surface: '#1A1A1A',
-  primary: '#E8B4BC',
+  primary: '#FF4D6D',
+  secondary: '#C9184A',
+  accent: '#FFD6E0',
   text: '#FFFFFF',
-  textSecondary: '#A0A0A0',
+  textSecondary: '#B3B3B3',
   border: '#2A2A2A',
   error: '#E57373',
   success: '#81C784',
 } as const;
 
 export const lightColors = {
-  background: '#F5F0E8',
-  surface: '#FAF7F2',
-  primary: '#C9A962',
+  background: '#FAF7F2',
+  surface: '#FFFFFF',
+  primary: '#FF4D6D',
+  secondary: '#C9184A',
+  accent: '#FFD6E0',
   text: '#2C2C2C',
   textSecondary: '#6B6B6B',
   border: '#E5E0D8',

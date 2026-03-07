@@ -9,6 +9,7 @@ import {
   Platform,
   ActivityIndicator,
   Alert,
+  Image,
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { theme } from '../../shared/theme';
@@ -40,8 +41,13 @@ export function LoginScreen({ onNavigateToRegister }: { onNavigateToRegister: ()
       style={styles.container}
     >
       <View style={styles.content}>
-        <Text style={styles.title}>Nossa História</Text>
-        <Text style={styles.subtitle}>Entre na sua conta</Text>
+        <Image
+          source={require('../../../assets/nossa-historia-logo.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        <Text style={styles.subtitle}>Construa sua história juntos</Text>
+        <Text style={styles.subtitleSecondary}>Entre na sua conta</Text>
 
         <TextInput
           style={styles.input}
@@ -89,14 +95,21 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: theme.spacing.lg,
+    alignItems: 'center',
   },
-  title: {
-    fontSize: theme.fontSize.xxl,
-    color: theme.dark.primary,
-    textAlign: 'center',
-    marginBottom: theme.spacing.xs,
+  logo: {
+    width: 200,
+    height: 56,
+    marginBottom: theme.spacing.sm,
   },
   subtitle: {
+    fontSize: theme.fontSize.lg,
+    color: theme.dark.primary,
+    textAlign: 'center',
+    fontWeight: '600',
+    marginBottom: theme.spacing.xs,
+  },
+  subtitleSecondary: {
     fontSize: theme.fontSize.md,
     color: theme.dark.textSecondary,
     textAlign: 'center',

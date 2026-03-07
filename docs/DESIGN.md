@@ -5,27 +5,21 @@
 - **Minimalista:** Foco no conteúdo, pouca distração
 - **Moderno:** UI atual, com animações sutis
 - **Emocional:** Cores e tipografia que transmitam afeto
+- **Conceito visual:** Duas linhas (duas vidas) se conectando em um coração/linha do tempo
 
 ---
 
-## Paleta de Cores
+## Paleta de Cores (oficial — ver `docs/BRANDING.md`)
 
-### Opção 1 — Minimalista / Clean
-| Uso        | Cor    | Hex (exemplo) |
-|------------|--------|---------------|
-| Fundo      | Preto  | `#0D0D0D`     |
-| Destaque   | Rosa   | `#E8B4BC`     |
-| Texto      | Branco | `#FFFFFF`     |
-| Texto 2    | Cinza  | `#A0A0A0`     |
-
-### Opção 2 — Elegante
-| Uso        | Cor    | Hex (exemplo) |
-|------------|--------|---------------|
-| Fundo      | Bege   | `#F5F0E8`     |
-| Destaque   | Dourado| `#C9A962`     |
-| Acento     | Creme  | `#FAF7F2`     |
-| Texto      | Marrom | `#2C2C2C`     |
-| Texto 2    | Cinza  | `#6B6B6B`     |
+| Uso        | Cor       | Hex       |
+|------------|-----------|-----------|
+| Primary    | Rosa      | `#FF4D6D` |
+| Secondary  | Rosa escuro | `#C9184A` |
+| Background | Preto     | `#0F0F0F` |
+| Surface    | Escuro    | `#1A1A1A` |
+| Text       | Branco    | `#FFFFFF` |
+| Text 2     | Cinza     | `#B3B3B3` |
+| Accent     | Rosa claro| `#FFD6E0` |
 
 ---
 
