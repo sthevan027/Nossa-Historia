@@ -10,3 +10,5 @@
 | [FUNCIONALIDADES.md](./FUNCIONALIDADES.md) | Detalhamento de cada funcionalidade |
 | [MVP-E-ROADMAP.md](./MVP-E-ROADMAP.md) | Escopo do MVP e roadmap |
 | [DESIGN.md](./DESIGN.md) | Diretrizes de design e UI |
+| [SOLID.md](./SOLID.md) | Princípios SOLID e organização do código |
+| [../CONTRIBUTING.md](../CONTRIBUTING.md) | Guia de contribuição |

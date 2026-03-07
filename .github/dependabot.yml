@@ -3,6 +3,7 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
+    # Projeto usa pnpm
     directory: "/"
     schedule:
       interval: "weekly"
