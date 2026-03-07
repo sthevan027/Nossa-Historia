@@ -6,6 +6,19 @@
 
 ---
 
+## 🚀 Setup Rápido
+
+```bash
+pnpm install
+cp .env.example .env
+# Configure EXPO_PUBLIC_SUPABASE_URL e EXPO_PUBLIC_SUPABASE_ANON_KEY no .env
+pnpm start
+```
+
+**Supabase:** Execute o SQL em `supabase/migrations/001_initial_schema.sql` no SQL Editor do seu projeto. Depois, crie o bucket `photos` em Storage (público) para upload de memórias.
+
+---
+
 ## 📱 Conceito do App
 
 **Nossa História** não é só memória. É um espaço onde duas pessoas conectam suas contas e constroem juntos:
