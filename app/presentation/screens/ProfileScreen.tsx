@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,13 +7,17 @@ import {
   Alert,
   ScrollView,
   Platform,
+  Image,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useCouple } from '../contexts/CoupleContext';
 import { theme } from '../../shared/theme';
+import { repositories } from '../../data/repositories';
 
 interface MenuItemProps {
   icon: keyof typeof Ionicons.glyphMap;
@@ -43,10 +47,132 @@ function MenuItem({ icon, label, sublabel, iconColor, onPress, danger }: MenuIte
   );
 }
 
+function Avatar({
+  uri,
+  initial,
+  size = 72,
+  style,
+}: {
+  uri?: string | null;
+  initial: string;
+  size?: number;
+  style?: object;
+}) {
+  const s = size;
+  const radius = s / 2;
+  if (uri) {
+    return (
+      <Image
+        source={{ uri }}
+        style={[
+          {
+            width: s,
+            height: s,
+            borderRadius: radius,
+            borderWidth: 3,
+            borderColor: 'rgba(255,255,255,0.3)',
+          },
+          style,
+        ]}
+      />
+    );
+  }
+  return (
+    <View
+      style={[
+        styles.avatar,
+        { width: s, height: s, borderRadius: radius },
+        style,
+      ]}
+    >
+      <Text style={[styles.avatarText, { fontSize: s * 0.4 }]}>{initial}</Text>
+    </View>
+  );
+}
+
 export function ProfileScreen() {
   const navigation = useNavigation<any>();
-  const { user, signOut } = useAuth();
-  const { couple, partner } = useCouple();
+  const { user, signOut, refreshUser } = useAuth();
+  const { couple, partner, refresh } = useCouple();
+  const [uploading, setUploading] = useState(false);
+
+  const handleChangePhoto = () => {
+    Alert.alert('Foto de perfil', 'Escolha uma opção', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Tirar foto', onPress: handleTakePhoto },
+      { text: 'Escolher da galeria', onPress: handlePickFromGallery },
+      ...(user?.avatar_url
+        ? [{ text: 'Remover foto', style: 'destructive' as const, onPress: handleRemovePhoto }]
+        : []),
+    ]);
+  };
+
+  const handleTakePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permissão negada', 'É necessário permitir o acesso à câmera.');
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: Platform.OS !== 'web',
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+    if (!result.canceled && user) {
+      await uploadAvatar(result.assets[0].uri);
+    }
+  };
+
+  const handlePickFromGallery = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: Platform.OS !== 'web',
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+    if (!result.canceled && user) {
+      await uploadAvatar(result.assets[0].uri);
+    }
+  };
+
+  const handleRemovePhoto = async () => {
+    if (!user?.avatar_url) return;
+    Alert.alert('Remover foto', 'Deseja remover sua foto de perfil?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Remover',
+        style: 'destructive',
+        onPress: async () => {
+          setUploading(true);
+          try {
+            await repositories.auth.updateAvatarUrl(user.id, null);
+            await refreshUser();
+          } catch (e) {
+            Alert.alert('Erro', 'Não foi possível remover a foto.');
+          } finally {
+            setUploading(false);
+          }
+        },
+      },
+    ]);
+  };
+
+  const uploadAvatar = async (uri: string) => {
+    if (!user) return;
+    setUploading(true);
+    try {
+      const path = `avatars/${user.id}/avatar.jpg`;
+      const url = await repositories.storage.uploadPhoto('photos', path, uri);
+      await repositories.auth.updateAvatarUrl(user.id, url);
+      await refreshUser();
+      await refresh();
+    } catch (e) {
+      Alert.alert('Erro', 'Não foi possível enviar a foto. Tente novamente.');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSignOut = () => {
     Alert.alert('Sair', 'Deseja realmente sair da conta?', [
@@ -68,17 +194,29 @@ export function ProfileScreen() {
         </View>
         <View style={styles.headerContent}>
           <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {user?.name?.charAt(0).toUpperCase() ?? '?'}
-              </Text>
-            </View>
+            <TouchableOpacity
+              onPress={handleChangePhoto}
+              disabled={uploading}
+              activeOpacity={0.8}
+              style={styles.avatarTouchable}
+            >
+              {uploading ? (
+                <View style={[styles.avatar, styles.avatarLoading]}>
+                  <ActivityIndicator color="#FFF" size="small" />
+                </View>
+              ) : (
+                <Avatar
+                  uri={user?.avatar_url}
+                  initial={user?.name?.charAt(0).toUpperCase() ?? '?'}
+                />
+              )}
+            </TouchableOpacity>
             {partner && (
-              <View style={[styles.avatar, styles.partnerAvatar]}>
-                <Text style={styles.avatarText}>
-                  {partner.name?.charAt(0).toUpperCase() ?? '?'}
-                </Text>
-              </View>
+              <Avatar
+                uri={partner.avatar_url}
+                initial={partner.name?.charAt(0).toUpperCase() ?? '?'}
+                style={styles.partnerAvatar}
+              />
             )}
           </View>
           <Text style={styles.name}>{user?.name ?? 'Usuário'}</Text>
@@ -187,6 +325,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: theme.spacing.md,
   },
+  avatarTouchable: {
+    marginRight: -16,
+  },
   avatar: {
     width: 72,
     height: 72,
@@ -196,6 +337,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 3,
     borderColor: 'rgba(255,255,255,0.3)',
+  },
+  avatarLoading: {
+    borderWidth: 0,
   },
   partnerAvatar: {
     marginLeft: -16,
