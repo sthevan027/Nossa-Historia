@@ -12,6 +12,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useCouple } from '../contexts/CoupleContext';
@@ -19,7 +20,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { theme } from '../../shared/theme';
 
 export function ConnectPartnerScreen() {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<Record<string, object | undefined>>>();
   const { generateInviteCode, joinWithCode, refresh } = useCouple();
   const { signOut } = useAuth();
   const [code, setCode] = useState('');

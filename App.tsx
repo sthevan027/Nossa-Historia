@@ -73,7 +73,7 @@ function MainTabs() {
         tabBarItemStyle: {
           paddingVertical: 4,
         },
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarIcon: ({ focused, color }) => {
           const icons = TAB_ICONS[route.name];
           const iconName = focused ? icons.focused : icons.default;
           return (
@@ -115,7 +115,7 @@ function MainTabs() {
 
 function AppNavigator() {
   const { user, loading } = useAuth();
-  const { couple, loading: coupleLoading } = useCouple();
+  const { loading: coupleLoading } = useCouple();
 
   if (loading || coupleLoading) {
     return (

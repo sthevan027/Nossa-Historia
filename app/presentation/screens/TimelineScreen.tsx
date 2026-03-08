@@ -64,7 +64,7 @@ export function TimelineScreen() {
       <FlatList
         data={events}
         keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => (
+        renderItem={({ item }) => (
           <TimelineItem event={item} />
         )}
         contentContainerStyle={[

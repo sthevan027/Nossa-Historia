@@ -11,6 +11,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { useCouple } from '../contexts/CoupleContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useTimeline } from '../hooks/useTimeline';
@@ -33,7 +34,7 @@ function getRelationshipMilestone(days: number): string {
 }
 
 export function HomeScreen() {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<Record<string, object | undefined>>>();
   const { user } = useAuth();
   const { couple, partner } = useCouple();
   const { events, loading: timelineLoading, refresh: refreshTimeline } = useTimeline();
