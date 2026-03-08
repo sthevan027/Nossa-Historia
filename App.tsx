@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { AuthProvider, useAuth } from './app/presentation/contexts/AuthContext';
 import { CoupleProvider, useCouple } from './app/presentation/contexts/CoupleContext';
+import { ErrorBoundary } from './app/presentation/components/ErrorBoundary';
 import { LoginScreen } from './app/presentation/screens/LoginScreen';
 import { RegisterScreen } from './app/presentation/screens/RegisterScreen';
 import { ConnectPartnerScreen } from './app/presentation/screens/ConnectPartnerScreen';
@@ -16,61 +18,93 @@ import { GoalsScreen } from './app/presentation/screens/GoalsScreen';
 import { ProfileScreen } from './app/presentation/screens/ProfileScreen';
 import { theme } from './app/shared/theme';
 
-const Stack = createNativeStackNavigator();
+const AuthStack = createNativeStackNavigator();
+const MainStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function AuthStack() {
-  const [showRegister, setShowRegister] = useState(false);
+const TAB_ICONS: Record<string, { focused: keyof typeof Ionicons.glyphMap; default: keyof typeof Ionicons.glyphMap }> = {
+  Home: { focused: 'heart', default: 'heart-outline' },
+  Timeline: { focused: 'calendar', default: 'calendar-outline' },
+  Memories: { focused: 'images', default: 'images-outline' },
+  Goals: { focused: 'star', default: 'star-outline' },
+  Profile: { focused: 'person', default: 'person-outline' },
+};
+
+function AuthNavigator() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {showRegister ? (
-        <Stack.Screen name="Register">
-          {() => <RegisterScreen onNavigateToLogin={() => setShowRegister(false)} />}
-        </Stack.Screen>
-      ) : (
-        <Stack.Screen name="Login">
-          {() => <LoginScreen onNavigateToRegister={() => setShowRegister(true)} />}
-        </Stack.Screen>
-      )}
-    </Stack.Navigator>
+    <AuthStack.Navigator screenOptions={{ headerShown: false }}>
+      <AuthStack.Screen name="Login" component={LoginScreen} />
+      <AuthStack.Screen name="Register" component={RegisterScreen} />
+    </AuthStack.Navigator>
   );
 }
 
 function MainTabs() {
   return (
     <Tab.Navigator
-      screenOptions={{
-        headerStyle: { backgroundColor: theme.dark.background },
+      screenOptions={({ route }) => ({
+        lazy: true,
+        headerStyle: {
+          backgroundColor: theme.dark.background,
+          elevation: 0,
+          shadowOpacity: 0,
+          borderBottomWidth: 0,
+        },
+        headerTitleStyle: {
+          fontWeight: theme.fontWeight.bold,
+          fontSize: theme.fontSize.lg,
+        },
         headerTintColor: theme.dark.text,
-        tabBarStyle: { backgroundColor: theme.dark.surface },
+        tabBarStyle: {
+          backgroundColor: theme.dark.surface,
+          borderTopWidth: 0,
+          height: Platform.OS === 'ios' ? 88 : 64,
+          paddingBottom: Platform.OS === 'ios' ? 28 : 8,
+          paddingTop: 8,
+          ...theme.shadow.lg,
+        },
         tabBarActiveTintColor: theme.dark.primary,
-        tabBarInactiveTintColor: theme.dark.textSecondary,
-      }}
+        tabBarInactiveTintColor: theme.dark.textMuted,
+        tabBarLabelStyle: {
+          fontSize: theme.fontSize.xs,
+          fontWeight: theme.fontWeight.medium,
+          marginTop: 2,
+        },
+        tabBarIcon: ({ focused, color, size }) => {
+          const icons = TAB_ICONS[route.name];
+          const iconName = focused ? icons.focused : icons.default;
+          return (
+            <View style={focused ? styles.activeIconContainer : undefined}>
+              <Ionicons name={iconName} size={focused ? 24 : 22} color={color} />
+            </View>
+          );
+        },
+      })}
     >
       <Tab.Screen
         name="Home"
         component={HomeScreen}
-        options={{ title: 'Início', tabBarLabel: 'Início', tabBarIcon: () => <Text>❤️</Text> }}
+        options={{ title: 'Início', tabBarLabel: 'Início', headerShown: false }}
       />
       <Tab.Screen
         name="Timeline"
         component={TimelineScreen}
-        options={{ title: 'Linha do tempo', tabBarLabel: 'Timeline', tabBarIcon: () => <Text>📅</Text> }}
+        options={{ title: 'Timeline' }}
       />
       <Tab.Screen
         name="Memories"
         component={MemoriesScreen}
-        options={{ title: 'Memórias', tabBarLabel: 'Memórias', tabBarIcon: () => <Text>📸</Text> }}
+        options={{ title: 'Memórias' }}
       />
       <Tab.Screen
         name="Goals"
         component={GoalsScreen}
-        options={{ title: 'Metas', tabBarLabel: 'Metas', tabBarIcon: () => <Text>✨</Text> }}
+        options={{ title: 'Metas' }}
       />
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}
-        options={{ title: 'Perfil', tabBarLabel: 'Perfil', tabBarIcon: () => <Text>👤</Text> }}
+        options={{ title: 'Perfil', headerShown: false }}
       />
     </Tab.Navigator>
   );
@@ -83,36 +117,41 @@ function AppNavigator() {
   if (loading || coupleLoading) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator size="large" color={theme.dark.primary} />
+        <View style={styles.loadingInner}>
+          <ActivityIndicator size="large" color={theme.dark.primary} />
+        </View>
       </View>
     );
   }
 
   if (!user) {
-    return <AuthStack />;
+    return <AuthNavigator />;
   }
 
-  if (!couple || couple.user1_id === couple.user2_id) {
-    return (
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="ConnectPartner" component={ConnectPartnerScreen} />
-      </Stack.Navigator>
-    );
-  }
-
-  return <MainTabs />;
+  return (
+    <MainStack.Navigator screenOptions={{ headerShown: false }}>
+      <MainStack.Screen name="Tabs" component={MainTabs} />
+      <MainStack.Screen
+        name="ConnectPartner"
+        component={ConnectPartnerScreen}
+        options={{ presentation: 'modal' }}
+      />
+    </MainStack.Navigator>
+  );
 }
 
 export default function App() {
   return (
-    <AuthProvider>
-      <CoupleProvider>
-        <NavigationContainer>
-          <StatusBar style="light" />
-          <AppNavigator />
-        </NavigationContainer>
-      </CoupleProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <CoupleProvider>
+          <NavigationContainer>
+            <StatusBar style="light" />
+            <AppNavigator />
+          </NavigationContainer>
+        </CoupleProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
@@ -122,5 +161,20 @@ const styles = StyleSheet.create({
     backgroundColor: theme.dark.background,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  loadingInner: {
+    width: 80,
+    height: 80,
+    borderRadius: theme.borderRadius.xl,
+    backgroundColor: theme.dark.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...theme.shadow.md,
+  },
+  activeIconContainer: {
+    backgroundColor: theme.dark.accentSoft,
+    borderRadius: theme.borderRadius.full,
+    paddingHorizontal: 16,
+    paddingVertical: 4,
   },
 });

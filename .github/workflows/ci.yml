@@ -30,8 +30,12 @@ jobs:
 
       - name: Lint
         if: hashFiles('package.json') != ''
-        run: pnpm run lint || true
+        run: pnpm run lint
+
+      - name: Type Check
+        if: hashFiles('package.json') != ''
+        run: pnpm run build
 
       - name: Test
         if: hashFiles('package.json') != ''
-        run: pnpm run test || true
+        run: pnpm run test --passWithNoTests

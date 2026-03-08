@@ -57,6 +57,19 @@ export class SupabaseCoupleRepository implements ICoupleRepository {
 
     if (error) throw error;
     if (!couple) throw new Error('Código inválido ou expirado');
+    if (couple.user1_id === userId) throw new Error('Você não pode usar seu próprio código');
+
+    // Remove solo couple do usuário que está entrando (se existir)
+    const { data: existingSolo } = await supabase
+      .from('couples')
+      .select('id')
+      .eq('user1_id', userId)
+      .eq('user2_id', userId)
+      .maybeSingle();
+
+    if (existingSolo) {
+      await supabase.from('couples').delete().eq('id', existingSolo.id);
+    }
 
     const { data: updated, error: updateError } = await supabase
       .from('couples')

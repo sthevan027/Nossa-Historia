@@ -123,6 +123,23 @@ CREATE POLICY "Couple members can manage goals" ON public.goals
     couple_id IN (SELECT id FROM public.couples WHERE user1_id = auth.uid() OR user2_id = auth.uid())
   );
 
--- Bucket para fotos (execute no Supabase Dashboard > Storage ou via API)
--- INSERT INTO storage.buckets (id, name, public) VALUES ('photos', 'photos', true);
--- Políticas de storage para o bucket photos
+-- Bucket para fotos
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('photos', 'photos', true)
+ON CONFLICT (id) DO NOTHING;
+
+CREATE POLICY "Authenticated users can upload photos"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'photos' AND auth.role() = 'authenticated');
+
+CREATE POLICY "Authenticated users can update own photos"
+  ON storage.objects FOR UPDATE
+  USING (bucket_id = 'photos' AND auth.uid()::text = (storage.foldername(name))[2]);
+
+CREATE POLICY "Anyone can view photos"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'photos');
+
+CREATE POLICY "Users can delete own photos"
+  ON storage.objects FOR DELETE
+  USING (bucket_id = 'photos' AND auth.uid()::text = (storage.foldername(name))[2]);

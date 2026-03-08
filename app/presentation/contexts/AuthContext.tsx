@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { User } from '../../core/types';
 import { SupabaseAuthRepository } from '../../data/repositories/SupabaseAuthRepository';
+import { supabase } from '../../data/supabase/client';
+import type { Session } from '@supabase/supabase-js';
 
 interface AuthContextValue {
   user: User | null;
@@ -13,15 +15,38 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 const authRepo = new SupabaseAuthRepository();
 
+function sessionToUser(session: Session | null): User | null {
+  if (!session?.user) return null;
+  const u = session.user;
+  return {
+    id: u.id,
+    name: (u.user_metadata?.name as string) ?? 'Usuário',
+    email: u.email ?? '',
+    created_at: u.created_at ?? new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    authRepo.getCurrentUser().then((u) => {
-      setUser(u);
-      setLoading(false);
-    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        const u = sessionToUser(session);
+        setUser(u);
+        setLoading(false);
+
+        if (u) {
+          authRepo.getCurrentUser().then((full) => full && setUser(full));
+        }
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {

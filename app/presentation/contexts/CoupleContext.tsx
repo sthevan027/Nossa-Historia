@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import type { Couple, User } from '../../core/types';
 import { SupabaseCoupleRepository } from '../../data/repositories/SupabaseCoupleRepository';
+import { supabase } from '../../data/supabase/client';
 import { useAuth } from './AuthContext';
 
 interface CoupleContextValue {
@@ -15,13 +16,32 @@ interface CoupleContextValue {
 const CoupleContext = createContext<CoupleContextValue | null>(null);
 const coupleRepo = new SupabaseCoupleRepository();
 
+async function loadPartnerProfile(partnerId: string): Promise<User | null> {
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', partnerId)
+    .single();
+
+  if (error || !profile) return null;
+
+  return {
+    id: profile.id,
+    name: profile.name ?? 'Parceiro(a)',
+    email: '',
+    avatar_url: profile.avatar_url ?? undefined,
+    created_at: profile.created_at ?? new Date().toISOString(),
+    updated_at: profile.updated_at ?? new Date().toISOString(),
+  };
+}
+
 export function CoupleProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [couple, setCouple] = useState<Couple | null>(null);
   const [partner, setPartner] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const loadCouple = async () => {
+  const loadCouple = useCallback(async () => {
     if (!user) {
       setCouple(null);
       setPartner(null);
@@ -31,15 +51,24 @@ export function CoupleProvider({ children }: { children: React.ReactNode }) {
     try {
       const c = await coupleRepo.getByUserId(user.id);
       setCouple(c);
-      setPartner(null); // TODO: carregar partner do profiles
-    } finally {
+      setLoading(false);
+
+      if (c && c.user1_id !== c.user2_id) {
+        const partnerId = coupleRepo.getPartner(c, user.id);
+        loadPartnerProfile(partnerId).then((p) => setPartner(p));
+      } else {
+        setPartner(null);
+      }
+    } catch {
+      setCouple(null);
+      setPartner(null);
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     loadCouple();
-  }, [user?.id]);
+  }, [loadCouple]);
 
   const generateInviteCode = async () => {
     if (!user) throw new Error('Não autenticado');
