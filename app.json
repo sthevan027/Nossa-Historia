@@ -12,7 +12,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#0F0F0F"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.nossahistoria.app"
@@ -22,16 +24,34 @@
         "foregroundImage": "./assets/nossa-historia-icon.png",
         "backgroundColor": "#FF4D6D"
       },
-      "package": "com.nossahistoria.app"
+      "package": "com.nossahistoria.app",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "plugins": [
       "expo-secure-store",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34,
+            "minSdkVersion": 23
+          }
+        }
+      ],
       [
         "expo-image-picker",
         {
           "photosPermission": "O app precisa acessar suas fotos para adicionar memórias."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "303b7b46-56df-476f-855e-1a904ef1045f"
+      }
+    }
   }
 }

@@ -67,14 +67,17 @@ function MainTabs() {
         tabBarInactiveTintColor: theme.dark.textMuted,
         tabBarLabelStyle: {
           fontSize: theme.fontSize.xs,
-          fontWeight: theme.fontWeight.medium,
+          fontWeight: theme.fontWeight.semibold,
           marginTop: 2,
+        },
+        tabBarItemStyle: {
+          paddingVertical: 4,
         },
         tabBarIcon: ({ focused, color, size }) => {
           const icons = TAB_ICONS[route.name];
           const iconName = focused ? icons.focused : icons.default;
           return (
-            <View style={focused ? styles.activeIconContainer : undefined}>
+            <View style={[styles.iconWrapper, focused && styles.activeIconContainer]}>
               <Ionicons name={iconName} size={focused ? 24 : 22} color={color} />
             </View>
           );
@@ -171,10 +174,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...theme.shadow.md,
   },
+  iconWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: theme.borderRadius.full,
+  },
   activeIconContainer: {
     backgroundColor: theme.dark.accentSoft,
-    borderRadius: theme.borderRadius.full,
-    paddingHorizontal: 16,
-    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: theme.dark.primary + '40',
   },
 });
