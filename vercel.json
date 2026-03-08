@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm exec expo export -p web",
+  "buildCommand": "node scripts/prepare-pwa.js && pnpm exec expo export -p web",
   "outputDirectory": "dist",
   "devCommand": "expo start --web",
   "framework": null,
