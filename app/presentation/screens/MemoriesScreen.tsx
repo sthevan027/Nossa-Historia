@@ -67,7 +67,9 @@ export function MemoriesScreen() {
       setPhotoUri(null);
       setModalVisible(false);
     } catch (e: unknown) {
-      Alert.alert('Erro', (e as Error).message ?? 'Não foi possível adicionar');
+      const msg = (e as Error).message ?? 'Não foi possível adicionar';
+      console.error('[MemoriesScreen] Erro ao salvar:', e);
+      Alert.alert('Erro', msg);
     } finally {
       setSaving(false);
     }
