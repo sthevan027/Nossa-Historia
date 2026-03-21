@@ -119,21 +119,30 @@ export function ProfileScreen() {
       allowsEditing: Platform.OS !== 'web',
       aspect: [1, 1],
       quality: 0.8,
+      base64: Platform.OS !== 'web',
     });
     if (!result.canceled && user) {
-      await uploadAvatar(result.assets[0].uri);
+      const asset = result.assets[0];
+      await uploadAvatar(asset.base64 ?? asset.uri, !!asset.base64);
     }
   };
 
   const handlePickFromGallery = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permissão negada', 'É necessário permitir o acesso à galeria.');
+      return;
+    }
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: Platform.OS !== 'web',
       aspect: [1, 1],
       quality: 0.8,
+      base64: Platform.OS !== 'web',
     });
     if (!result.canceled && user) {
-      await uploadAvatar(result.assets[0].uri);
+      const asset = result.assets[0];
+      await uploadAvatar(asset.base64 ?? asset.uri, !!asset.base64);
     }
   };
 
@@ -159,12 +168,12 @@ export function ProfileScreen() {
     ]);
   };
 
-  const uploadAvatar = async (uri: string) => {
+  const uploadAvatar = async (uriOrBase64: string, isBase64 = false) => {
     if (!user) return;
     setUploading(true);
     try {
       const path = `avatars/${user.id}/avatar.jpg`;
-      const url = await repositories.storage.uploadPhoto('photos', path, uri);
+      const url = await repositories.storage.uploadPhoto('photos', path, uriOrBase64, { isBase64 });
       await repositories.auth.updateAvatarUrl(user.id, url);
       await refreshUser();
       await refresh();
